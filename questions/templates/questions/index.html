@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Новые вопросы{% endblock %}
+{% block content %}
+    {% for q in questions %}
+        <article>
+            <a href="{% url 'question' question_id=q.id %}">{{ q.title }}</a>
+            <p>{{ q.text }}</p>
+        </article>
+    {% endfor %}
+{% endblock %}
