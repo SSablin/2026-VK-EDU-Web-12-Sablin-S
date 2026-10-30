@@ -1,0 +1,24 @@
+body {
+    background: #f8f9fa;
+    color: #000000;
+    padding: 0em;
+    margin: 0em;
+    overflow: auto;
+}
+
+.header-search {
+    min-width: 10rem;
+    max-width: 24rem;
+}
+
+.form-label-col {
+    min-width: 130px;
+}
+
+.pagination {
+    flex-wrap: wrap;
+}
+
+.card .flex-grow-1 {
+    min-width: 0;
+}
