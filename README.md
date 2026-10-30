@@ -10,3 +10,6 @@
 - `public/login.html` - вход
 - `public/signup.html` - регистрация
 - `public/profile.html` - профиль пользователя
+
+## Как открыть
+Открыть `public/index.html` в браузере или через Live Server.
