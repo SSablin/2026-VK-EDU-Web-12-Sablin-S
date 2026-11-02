@@ -1,0 +1,27 @@
+<div class="card mb-3">
+    <div class="card-header fw-bold">Popular tags</div>
+    <div class="card-body d-flex flex-wrap gap-2">
+        <a href="{% url 'tag' tag_name='perl' %}" class="badge text-bg-danger text-decoration-none">perl</a>
+        <a href="{% url 'tag' tag_name='python' %}" class="badge text-bg-primary text-decoration-none">python</a>
+        <a href="{% url 'tag' tag_name='TechnoPark' %}" class="badge text-bg-primary text-decoration-none">TechnoPark</a>
+        <a href="{% url 'tag' tag_name='MySQL' %}" class="badge text-bg-primary text-decoration-none">MySQL</a>
+        <a href="{% url 'tag' tag_name='django' %}" class="badge text-bg-success text-decoration-none">django</a>
+        <a href="{% url 'tag' tag_name='Mail.ru' %}" class="badge text-bg-warning text-decoration-none">Mail.ru</a>
+        <a href="{% url 'tag' tag_name='Voloshin' %}" class="badge text-bg-danger text-decoration-none">Voloshin</a>
+        <a href="{% url 'tag' tag_name='Firefox' %}" class="badge text-bg-danger text-decoration-none">Firefox</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header fw-bold">Best members</div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <a href="{% url 'question' question_id=1 %}"> Ivan Ivanov
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'question' question_id=2 %}"> Peter Petrov </a>
+        </li>
+        <li class="list-group-item"><a href="{% url 'question' question_id=3 %}">Anna Sidorova </a></li>
+    </ul>
+</div>

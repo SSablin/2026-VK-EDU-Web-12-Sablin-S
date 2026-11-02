@@ -1,5 +1,10 @@
-<header>
-    <a href="{% url 'index' %}">AskMe</a> |
-    <a href="{% url 'ask' %}">Задать вопрос</a> |
-    <a href="{% url 'login' %}">Войти</a>
+<header class="bg-white border-bottom py-3">
+    <div class="container d-flex flex-wrap align-items-center gap-2 gap-lg-3">
+        <a href="{% url 'index' %}" class="fs-4 fw-bold text-decoration-none">AskMe</a>
+        <input type="search" class="form-control flex-grow-1 header-search"
+               placeholder="Search..." aria-label="Search">
+        <a href="{% url 'ask' %}" class="btn btn-primary text-nowrap">ASK!</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-primary text-nowrap">login</a>
+        <a href="{% url 'signup' %}" class="btn btn-outline-primary text-nowrap">register</a>
+    </div>
 </header>
