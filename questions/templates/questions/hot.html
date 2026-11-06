@@ -25,14 +25,14 @@
                         </p>
 
                         <div class="d-flex align-items-center gap-3 flex-wrap">
-                            <a href="{% url 'tag' tag_name='html' %}" class="badge text-bg-secondary text-decoration-none">html</a>
-                            <span class="text-muted small">0 answers</span>
-                            <span class="text-muted small">just now</span>
+                            {% for tag in q.tags %}
+                                <a href="{% url 'tag' tag_name=tag %}" class="badge text-bg-secondary text-decoration-none">{{ tag }}</a>
+                            {% endfor %}
                         </div>
                     </div>
 
                     <div class="text-center">
-                        <button type="button" class="btn btn-sm btn-success" aria-label="Upvote">▲</button>
+                        <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲</button>
                         <div class="fw-bold">{{ q.rating }}</div>
                         <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼</button>
                     </div>
