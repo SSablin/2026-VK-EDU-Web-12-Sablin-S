@@ -1,46 +1,16 @@
 {% extends 'base.html' %}
-{% load static %}
 {% block title %}New Questions{% endblock %}
 {% block content %}
 
-<div class="d-flex align-items-baseline gap-3 mb-3">
-    <h1 class="h3 mb-0">New questions</h1>
-    <a href="{% url 'hot' %}" class="h3 link-primary">Hot questions</a>
-</div>
-
-{% for q in page.object_list %}
-<article class="card mb-3">
-    <div class="card-body">
-        <div class="d-flex gap-3">
-
-            <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
-                 class="rounded-circle bg-secondary flex-shrink-0">
-
-            <div class="flex-grow-1">
-                <a href="{% url 'question' question_id=q.id %}" class="h5 text-decoration-none d-block mb-2" title="{{ q.title }}">
-                    {{ q.title }}
-                </a>
-                <p class="text-muted mb-2">
-                    {{ q.text }}
-                </p>
-
-                <div class="d-flex align-items-center gap-3 flex-wrap">
-                    {% for tag in q.tags %}
-                        <a href="{% url 'tag' tag_name=tag %}" class="badge text-bg-secondary text-decoration-none">{{ tag }}</a>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲</button>
-                <div class="fw-bold">{{ q.rating }}</div>
-                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼</button>
-            </div>
-        </div>
+    <div class="d-flex align-items-baseline gap-3 mb-3">
+        <h1 class="h3 mb-0">New questions</h1>
+        <a href="{% url 'hot' %}" class="h3 mb-0 text-decoration-none link-primary">Hot questions</a>
     </div>
-</article>
-{% empty %}
-    <p>No questions now.</p>
-{% endfor %}
-{% include 'questions/includes/pagination.html' with page=page %}
+
+    {% for q in page.object_list %}
+        {% include 'questions/includes/question_card.html' with question=q %}
+    {% empty %}
+        <p>No questions now.</p>
+    {% endfor %}
+    {% include 'questions/includes/pagination.html' with page=page %}
 {% endblock %}

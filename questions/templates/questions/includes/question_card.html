@@ -7,16 +7,16 @@
                  class="rounded-circle bg-secondary flex-shrink-0">
 
             <div class="flex-grow-1">
-                <a href="{% url 'question' question_id=q.id %}"
-                   class="h5 text-decoration-none d-block mb-2" title="{{ q.title }}">
-                    {{ q.title }}
+                <a href="{% url 'question' question_id=question.id %}"
+                   class="h5 text-decoration-none d-block mb-2" title="{{ question.title }}">
+                    {{ question.title }}
                 </a>
                 <p class="text-muted mb-2">
-                    {{ q.text }}
+                    {{ question.text }}
                 </p>
 
                 <div class="d-flex align-items-center gap-3 flex-wrap">
-                    {% for tag in q.tags %}
+                    {% for tag in question.tags %}
                         <a href="{% url 'tag' tag_name=tag %}"
                            class="badge text-bg-secondary text-decoration-none">{{ tag }}</a>
                     {% endfor %}
@@ -25,7 +25,7 @@
 
             <div class="text-center">
                 <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲</button>
-                <div class="fw-bold">{{ q.rating }}</div>
+                <div class="fw-bold">{{ question.rating }}</div>
                 <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼</button>
             </div>
         </div>

@@ -3,11 +3,11 @@
 {% block content %}
     <div class="d-flex align-items-baseline gap-3 mb-3">
         <h1 class="h3 mb-0">Hot questions</h1>
-        <a href="{% url 'index' %}" class="h3 link-primary">New questions</a>
+        <a href="{% url 'index' %}" class="h3 mb-0 text-decoration-none link-primary">New questions</a>
     </div>
 
     {% for q in page.object_list %}
-        {% include 'questions/includes/question_card.html' with q=q %}
+        {% include 'questions/includes/question_card.html' with question=q %}
     {% empty %}
         <p>No questions now.</p>
     {% endfor %}
