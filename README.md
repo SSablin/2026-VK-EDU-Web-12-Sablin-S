@@ -20,15 +20,15 @@
 - Django 5 + SQLite
 - 8 страниц: `/`, `/hot/`, `/tag/<name>/`, `/question/<id>/`, `/ask/`, `/login/`, `/signup/`, `/profile/`
 - Пагинация на списках вопросов (`?page=N`)
-- Bootstrap 5, адаптивная вёрстка (из HW1)
+- Bootstrap 5, адаптивная вёрстка (из ДЗ1)
 
 ## Запуск локально
 
 ```bash
 python -m venv venv
-source venv/bin/activate    # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env        # поправь SECRET_KEY при желании
+cp .env.example .env
 python manage.py migrate
 python manage.py runserver
 ```
