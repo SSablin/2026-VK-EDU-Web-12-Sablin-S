@@ -18,3 +18,9 @@ venv/
 env/
 staticfiles/
 *.egg-info/
+
+.env
+.env.local
+.env.*.local
+
+/media/
