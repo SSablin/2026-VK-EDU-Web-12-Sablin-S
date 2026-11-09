@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}New Questions{% endblock %}
+{% block content %}
+
+    <div class="d-flex align-items-baseline gap-3 mb-3">
+        <h1 class="h3 mb-0">New questions</h1>
+        <a href="{% url 'hot' %}" class="h3 mb-0 text-decoration-none link-primary">Hot questions</a>
+    </div>
+
+    {% for q in page.object_list %}
+        {% include 'questions/includes/question_card.html' with question=q %}
+    {% empty %}
+        <p>No questions now.</p>
+    {% endfor %}
+    {% include 'questions/includes/pagination.html' with page=page %}
+{% endblock %}

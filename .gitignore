@@ -2,8 +2,6 @@
 .vscode/
 
 __pycache__/
-*.py
-*.sqlite3
 
 .DS_Store
 Thumbs.db
@@ -18,3 +16,9 @@ venv/
 env/
 staticfiles/
 *.egg-info/
+
+.env
+.env.local
+.env.*.local
+
+/media/

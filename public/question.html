@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AskMe — question</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="icon" href="static/img/favicon.png" type="image/png">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<header class="bg-white border-bottom py-3">
+    <div class="container d-flex flex-wrap align-items-center gap-2 gap-lg-3">
+        <a href="index.html" class="fs-4 fw-bold text-decoration-none">AskMe</a>
+        <input type="search" class="form-control flex-grow-1 header-search"
+               placeholder="Search..." aria-label="Search">
+        <a href="ask.html" class="btn btn-primary text-nowrap">ASK!</a>
+        <a href="login.html" class="btn btn-outline-primary text-nowrap">login</a>
+        <a href="signup.html" class="btn btn-outline-primary text-nowrap">register</a>
+    </div>
+</header>
+
+<div class="container my-4 flex-grow-1">
+    <div class="row g-4">
+
+        <main class="col-12 col-lg-8">
+
+            <article class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex gap-3">
+
+                        <img src="static/img/avatar.png" alt="Avatar" width="48" height="48"
+                             class="rounded-circle bg-secondary flex-shrink-0">
+
+                        <div class="flex-grow-1">
+                            <h1 class="h4 mb-3">Question 1</h1>
+
+                            <p class="mb-3">
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                                Voluptas delectus a nobis in numquam eaque nesciunt iusto, cupiditate odit iste non
+                                incidunt maiores laborum possimus id, adipisci officia repellat officiis.
+                            </p>
+
+                            <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                                <a href="#" class="badge text-bg-secondary text-decoration-none">html</a>
+                                <a href="#" class="badge text-bg-secondary text-decoration-none">learning</a>
+                                <span class="text-muted small">2 answers</span>
+                                <span class="text-muted small">2 minutes ago</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="button" class="btn btn-sm btn-success" aria-label="Upvote">▲</button>
+                            <div class="fw-bold">12</div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼</button>
+                        </div>
+
+                    </div>
+                </div>
+            </article>
+
+            <h2 class="h5 mb-3">Answers (2)</h2>
+
+            <article class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex gap-3">
+
+                        <img src="static/img/avatar.png" alt="Avatar" width="48" height="48"
+                             class="rounded-circle bg-secondary flex-shrink-0">
+
+                        <div class="flex-grow-1">
+                            <p class="mb-2">
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dignissimos delectus
+                                ducimus sed odit. Nam alias consectetur perspiciatis ipsa officia ut sit natus nemo.
+                                Cum magni nobis voluptatibus error, dolore molestiae.
+                            </p>
+
+                            <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                                <span class="text-muted small">Ivan Ivanov</span>
+                                <span class="text-muted small">1 minute ago</span>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲</button>
+                                    <span class="fw-bold">5</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼</button>
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-outline-success">
+                                    Correct answer
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </article>
+
+            <article class="card mb-3 border-success">
+                <div class="card-body">
+                    <div class="d-flex gap-3">
+
+                        <img src="static/img/avatar.png" alt="Avatar" width="48" height="48"
+                             class="rounded-circle bg-secondary flex-shrink-0">
+
+                        <div class="flex-grow-1">
+                            <p class="mb-2">
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi praesentium adipisci
+                                dicta eligendi officiis eum ut ea vero earum? Ratione vel magni reprehenderit est
+                                iusto aspernatur odit praesentium sint nisi.
+                            </p>
+
+                            <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                                <span class="text-muted small">Peter Petrov</span>
+                                <span class="text-muted small">30 seconds ago</span>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲</button>
+                                    <span class="fw-bold">9</span>
+                                    <button type="button" class="btn btn-sm btn-danger" aria-label="Downvote">▼</button>
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-success">
+                                    Correct answer
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </article>
+
+            <nav class="mb-4">
+                <ul class="pagination">
+                    <li class="page-item disabled"><a class="page-link" href="#">Back</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Forward</a></li>
+                </ul>
+            </nav>
+
+            <form action="#" method="post" novalidate>
+                <label for="answer" class="form-label fw-bold">Your answer</label>
+                <textarea id="answer" name="answer" class="form-control mb-2" rows="5" required></textarea>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+
+        </main>
+
+        <aside class="col-12 col-lg-4">
+
+            <div class="card mb-3">
+                <div class="card-header fw-bold">Popular tags</div>
+                <div class="card-body d-flex flex-wrap gap-2">
+                    <a href="#" class="badge text-bg-danger text-decoration-none">perl</a>
+                    <a href="#" class="badge text-bg-primary text-decoration-none">python</a>
+                    <a href="#" class="badge text-bg-primary text-decoration-none">TechnoPark</a>
+                    <a href="#" class="badge text-bg-primary text-decoration-none">MySQL</a>
+                    <a href="#" class="badge text-bg-success text-decoration-none">django</a>
+                    <a href="#" class="badge text-bg-warning text-decoration-none">Mail.ru</a>
+                    <a href="#" class="badge text-bg-danger text-decoration-none">Voloshin</a>
+                    <a href="#" class="badge text-bg-danger text-decoration-none">Firefox</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header fw-bold">Best members</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="question.html"> Ivan Ivanov
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="question.html"> Peter Petrov </a>
+                    </li>
+                    <li class="list-group-item"><a href="question.html">Anna Sidorova </a></li>
+                </ul>
+            </div>
+
+        </aside>
+
+    </div>
+</div>
+
+<footer class="bg-white border-top py-3 mt-auto">
+    <div class="container text-muted small">
+        AskMe, 2026
+    </div>
+</footer>
+
+<script src="static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
