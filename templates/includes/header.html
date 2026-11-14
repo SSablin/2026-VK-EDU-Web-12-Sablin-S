@@ -4,7 +4,13 @@
         <input type="search" class="form-control flex-grow-1 header-search"
                placeholder="Search..." aria-label="Search">
         <a href="{% url 'ask' %}" class="btn btn-primary text-nowrap">ASK!</a>
-        <a href="{% url 'login' %}" class="btn btn-outline-primary text-nowrap">login</a>
-        <a href="{% url 'signup' %}" class="btn btn-outline-primary text-nowrap">register</a>
+
+        {% if logined %}
+            <a href="{% url 'profile' %}" class="btn btn-outline-primary text-nowrap">profile</a>
+            <a href="{% url 'logout' %}" class="btn btn-outline-primary text-nowrap">logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline-primary text-nowrap">login</a>
+            <a href="{% url 'signup' %}" class="btn btn-outline-primary text-nowrap">register</a>
+        {% endif %}
     </div>
 </header>
