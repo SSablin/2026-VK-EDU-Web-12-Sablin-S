@@ -18,7 +18,7 @@ class Command(BaseCommand):
     help = "python manage.py fill_db [ratio]"
 
     def add_arguments(self, parser):
-        parser.add_argument("--ratio", nargs="?", type=int, default=1)
+        parser.add_argument("ratio", nargs="?", type=int, default=1)
 
     @transaction.atomic
     def handle(self, *args, **options):
