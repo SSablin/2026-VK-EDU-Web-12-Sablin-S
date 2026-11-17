@@ -60,7 +60,7 @@ docker compose up --build
 - Наполнение данными по `python manage.py fill_db [ratio]`
 - django-admin по `python manage.py createsuperuser` `/admin/`
 - .env.docker для запуска в Docker, .env.local для локального запуска
-- 
+- ModelManager и методы моделей 
 
 ## Запуск в Docker
 ```bash
