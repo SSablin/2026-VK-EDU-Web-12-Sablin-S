@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}AskMe — profile{% endblock %}
+{% block content %}
+<div class="d-flex gap-3">
+    <h1>Settings: Ivan</h1>
+</div>
+
+<form action="#" method="post" novalidate enctype="multipart/form-data">
+    <div class="d-flex gap-3 mb-3">
+        <label for="login" class="text-nowrap form-label-col">Login</label>
+        <div class="flex-grow-1">
+            <input id="login" name="login" class="form-control" type="text" required>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 mb-3">
+        <label for="email" class="text-nowrap form-label-col">Email</label>
+        <div class="flex-grow-1">
+            <input id="email" name="email" class="form-control" type="email" required>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 mb-3">
+        <label for="nickname" class="text-nowrap form-label-col">NickName</label>
+        <div class="flex-grow-1">
+            <input id="nickname" name="nickname" class="form-control" type="text" required>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <label for="avatar" class="text-nowrap form-label-col">Upload avatar</label>
+        <div>
+            <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="80" height="80"
+                 class="rounded-circle bg-secondary d-block mb-2">
+            <input id="avatar" name="avatar" type="file" class="form-control" accept="image/png,image/jpeg">
+            <div class="form-text">PNG or JPG, up to 2 MB.</div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3">
+        <span class="form-label-col"></span>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>
+{% endblock %}
