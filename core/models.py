@@ -16,3 +16,9 @@ class Profile(models.Model):
         null=True,
         blank=True
     )
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
+
+    def __str__(self):
+        return self.nickname

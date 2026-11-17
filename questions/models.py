@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from questions.managers import QuestionManager
+
 User = get_user_model()
 
 
@@ -10,8 +12,8 @@ class DefaultModel(models.Model):
     class Meta:
         abstract = True
 
-
 class Question(DefaultModel):
+    objects = QuestionManager()
     user = models.ForeignKey(
         User,
         verbose_name="Автор",
@@ -21,6 +23,11 @@ class Question(DefaultModel):
     title = models.CharField(max_length=120, verbose_name="Заголовок вопроса")
     text = models.TextField(max_length=4095, verbose_name="Текст вопроса")
 
+    class Meta:
+        verbose_name = "Вопрос"
+        verbose_name_plural = "Вопросы"
+    def __str__(self):
+        return f"Вопрос от {self.user} #{self.id}: {self.title}"
 
 class Answer(DefaultModel):
     user = models.ForeignKey(
@@ -37,14 +44,24 @@ class Answer(DefaultModel):
     text = models.TextField(max_length=4095, verbose_name="Текст ответа")
     is_correct = models.BooleanField(verbose_name="Правильный ответ")
 
+    class Meta:
+        verbose_name = "Ответ"
+        verbose_name_plural = "Ответы"
+    def __str__(self):
+        return f"Ответ от {self.user} #{self.id} на вопрос #{self.question_id}"
+
 
 class Tag(DefaultModel):
     title = models.CharField(max_length=120, unique=True, verbose_name="Название тега")
 
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
+
 
 class QuestionTag(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, verbose_name="Вопрос", on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, verbose_name="Тег", on_delete=models.CASCADE)
 
     class Meta:
         constraints = [
@@ -53,11 +70,13 @@ class QuestionTag(models.Model):
                 name="unique_question_tag"
             )
         ]
+        verbose_name = "Тег вопроса"
+        verbose_name_plural = "Теги вопросов"
 
 
 class QuestionLike(DefaultModel):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, verbose_name="Вопрос", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     is_like = models.BooleanField(verbose_name="Лайк/дизлайк")
 
     class Meta:
@@ -67,11 +86,13 @@ class QuestionLike(DefaultModel):
                 name="unique_question_like"
             )
         ]
+        verbose_name = "Лайк вопроса"
+        verbose_name_plural = "Лайки вопросов"
 
 
 class AnswerLike(DefaultModel):
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    answer = models.ForeignKey(Answer, verbose_name="Ответ", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     is_like = models.BooleanField(verbose_name="Лайк/дизлайк")
 
     class Meta:
@@ -81,3 +102,5 @@ class AnswerLike(DefaultModel):
                 name="unique_answer_like"
             )
         ]
+        verbose_name = "Лайк ответа"
+        verbose_name_plural = "Лайки ответов"
