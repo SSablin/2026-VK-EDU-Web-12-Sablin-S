@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models import Count, F, Q
 
 from questions.managers import QuestionManager
 
@@ -29,7 +30,23 @@ class Question(DefaultModel):
     def __str__(self):
         return f"Вопрос от {self.user} #{self.id}: {self.title}"
 
+class AnswerManager(models.Manager):
+    def for_question(self, question):
+        return (
+            self.get_queryset()
+            .filter(question=question)
+            .select_related("user")
+            .annotate(
+                likes=Count("answerlike", filter=Q(answerlike__is_like=True)),
+                dislikes=Count("answerlike", filter=Q(answerlike__is_like=False)),
+            )
+            .annotate(rating=F("likes") - F("dislikes"))
+            .order_by("-created_at")
+        )
+
+
 class Answer(DefaultModel):
+    objects = AnswerManager()
     user = models.ForeignKey(
         User,
         verbose_name="Автор",

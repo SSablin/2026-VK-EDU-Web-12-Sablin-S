@@ -8,6 +8,7 @@ from questions.models import (
 class AnswerInline(admin.TabularInline):
     model = Answer
     extra = 0
+    raw_id_fields = ("user",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user')
@@ -16,6 +17,7 @@ class AnswerInline(admin.TabularInline):
 class QuestionTagInline(admin.TabularInline):
     model = QuestionTag
     extra = 0
+    raw_id_fields = ("tag",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('tag')
@@ -47,6 +49,7 @@ class AnswerAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ("id", "title")
+    list_filter = ("created_at",)
     search_fields = ("title",)
 
 
@@ -54,7 +57,9 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(QuestionTag)
 class QuestionTagAdmin(admin.ModelAdmin):
     list_display = ("id", "question", "tag")
+    list_filter = ("tag",)
     search_fields = ("question__title", "tag__title")
+    raw_id_fields = ("question", "tag")
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('question', 'tag')

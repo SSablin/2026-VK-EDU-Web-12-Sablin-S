@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from questions.models import Question, Tag
+from questions.models import Answer, Question
 from questions.utils import paginate
 
 
@@ -16,16 +16,14 @@ def hot(request):
 
 
 def tag(request, tag_name):
-    questions = Question.objects.filter(questiontag__tag__title=tag_name).order_by('-created_at')
-    page = paginate(questions, request)
+    page = paginate(Question.objects.by_tag(tag_name), request)
     return render(request, 'questions/tag.html',
                   {'page': page, 'tag_name': tag_name, 'logined': False})
 
 
 def question(request, question_id):
-    question = get_object_or_404(Question.objects, pk=question_id)
-    answers = question.answer_set.order_by('-created_at')
-    page = paginate(answers, request)
+    question = get_object_or_404(Question.objects.with_related().with_rating(), pk=question_id)
+    page = paginate(Answer.objects.for_question(question), request)
     return render(request, 'questions/question.html', {'question': question, 'page': page, 'logined': False})
 
 

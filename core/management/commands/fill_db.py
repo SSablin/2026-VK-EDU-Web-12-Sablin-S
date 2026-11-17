@@ -15,11 +15,10 @@ fake = Faker("ru_RU")
 
 
 class Command(BaseCommand):
-    help = "python manage.py fill_db --ratio N"
+    help = "python manage.py fill_db [ratio]"
 
     def add_arguments(self, parser):
-        # В лекции был type=str — это баг, range() упадёт. Нужен int.
-        parser.add_argument("--ratio", dest="ratio", type=int, default=1)
+        parser.add_argument("--ratio", nargs="?", type=int, default=1)
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -30,7 +29,7 @@ class Command(BaseCommand):
         batch_size = 50_000
         pwd_hash = make_password("password123")
 
-        n_users     = ratio
+        n_users = ratio
         n_questions = ratio * 10
         n_answers   = ratio * 100
         n_tags      = ratio
@@ -119,33 +118,37 @@ class Command(BaseCommand):
             Answer.objects.bulk_create(answers_to_create, batch_size=1_000)
             answers_to_create.clear()
 
-        qlikes_to_create = []
+        question_likes_to_create = []
         for i in range(n_qlikes):
-            qlikes_to_create.append(QuestionLike(
-                user_id=(i % n_users) + 1,
-                question_id=(i // n_users + i % n_users) % n_questions + 1,
+            user_idx = i % n_users
+            question_idx = (i // n_users + user_idx) % n_questions
+            question_likes_to_create.append(QuestionLike(
+                user_id=user_idx + 1,
+                question_id=question_idx + 1,
                 is_like=(i % 2 == 0),
             ))
             if i != 0 and i % batch_size == 0:
-                QuestionLike.objects.bulk_create(qlikes_to_create, batch_size=1_000)
-                qlikes_to_create.clear()
-        if qlikes_to_create:
-            QuestionLike.objects.bulk_create(qlikes_to_create, batch_size=1_000)
-            qlikes_to_create.clear()
+                QuestionLike.objects.bulk_create(question_likes_to_create, batch_size=1_000)
+                question_likes_to_create.clear()
+        if question_likes_to_create:
+            QuestionLike.objects.bulk_create(question_likes_to_create, batch_size=1_000)
+            question_likes_to_create.clear()
 
-        alikes_to_create = []
+        answer_likes_to_create = []
         for i in range(n_alikes):
-            alikes_to_create.append(AnswerLike(
-                user_id=(i % n_users) + 1,
-                answer_id=(i // n_users + i % n_users) % n_answers + 1,
+            user_idx = i % n_users
+            answer_idx = (i // n_users + user_idx) % n_answers
+            answer_likes_to_create.append(AnswerLike(
+                user_id=user_idx + 1,
+                answer_id=answer_idx + 1,
                 is_like=(i % 2 == 0),
             ))
             if i != 0 and i % batch_size == 0:
-                AnswerLike.objects.bulk_create(alikes_to_create, batch_size=1_000)
-                alikes_to_create.clear()
-        if alikes_to_create:
-            AnswerLike.objects.bulk_create(alikes_to_create, batch_size=1_000)
-            alikes_to_create.clear()
+                AnswerLike.objects.bulk_create(answer_likes_to_create, batch_size=1_000)
+                answer_likes_to_create.clear()
+        if answer_likes_to_create:
+            AnswerLike.objects.bulk_create(answer_likes_to_create, batch_size=1_000)
+            answer_likes_to_create.clear()
 
         self.stdout.write(self.style.SUCCESS(
             f"Готово: users={n_users}, questions={n_questions}, answers={n_answers}, "
