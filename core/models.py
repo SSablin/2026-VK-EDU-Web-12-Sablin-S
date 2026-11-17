@@ -7,14 +7,16 @@ User = get_user_model()
 class Profile(models.Model):
     user = models.OneToOneField(
         User,
+        verbose_name="Пользователь",
         on_delete=models.CASCADE,
-        related_name='profile'
+        related_name="profile",
     )
-    nickname = models.CharField(max_length=40)
+    nickname = models.CharField(max_length=40, verbose_name="Никнейм")
     avatar = models.ImageField(
-        upload_to='avatars/',
+        upload_to="avatars/",
+        verbose_name="Аватар",
         null=True,
-        blank=True
+        blank=True,
     )
     class Meta:
         verbose_name = "Профиль"
