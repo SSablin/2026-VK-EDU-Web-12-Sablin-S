@@ -1,5 +1,6 @@
 asgiref==3.13.0
 Django==6.1.2
+django-bootstrap5==26.4
 django-debug-toolbar==8.0.0
 dotenv==0.9.9
 Faker==40.54.0

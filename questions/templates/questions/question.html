@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load django_bootstrap5 %}
 {% block title %}{{ question.title }}{% endblock %}
 {% block content %}
 {% with answer_count=page.paginator.count %}
@@ -8,7 +9,7 @@
 <h2 class="h5 mb-3">Answers ({{ answer_count }})</h2>
 
 {% for a in page.object_list %}
-<article class="card mb-3{% if a.is_correct %} border-success{% endif %}">
+<article id="answer-{{ a.id }}" class="card mb-3{% if a.is_correct %} border-success{% endif %}">
     <div class="card-body">
         <div class="d-flex gap-3">
             <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
@@ -22,16 +23,20 @@
                 </div>
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <div class="d-flex align-items-center gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲
+                        <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote" {% if not
+                            user.is_authenticated %}disabled title="Войдите, чтобы оценить ответ" {% endif %}>▲
                         </button>
                         <span class="fw-bold">{{ a.rating }}</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼
+                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote" {% if not
+                            user.is_authenticated %}disabled title="Войдите, чтобы оценить ответ" {% endif %}>▼
                         </button>
                     </div>
                     {% if a.is_correct %}
-                    <button type="button" class="btn btn-sm btn-success">Correct answer</button>
+                    <button type="button" class="btn btn-sm btn-success" {% if not user.is_authenticated %}disabled
+                        title="Войдите, чтобы выбрать правильный ответ" {% endif %}>Correct answer</button>
                     {% else %}
-                    <button type="button" class="btn btn-sm btn-outline-success">Correct answer</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" {% if not user.is_authenticated
+                        %}disabled title="Войдите, чтобы выбрать правильный ответ" {% endif %}>Correct answer</button>
                     {% endif %}
                 </div>
             </div>
@@ -45,10 +50,15 @@
 
 {% include 'questions/includes/pagination.html' with page=page %}
 
-<form action="#" method="post" novalidate>
-    <label for="answer" class="form-label fw-bold">Your answer</label>
-    <textarea id="answer" name="answer" class="form-control mb-2" rows="5" required></textarea>
+{% if user.is_authenticated %}
+<form action="{% url 'question' question.id %}" method="post" novalidate>
+    {% csrf_token %}
+    {% bootstrap_field form.text show_label=True placeholder="" %}
     <button type="submit" class="btn btn-primary">Send</button>
 </form>
+{% else %}
+<a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary"
+    title="Войдите, чтобы добавить ответ">Войдите, чтобы ответить</a>
+{% endif %}
 {% endwith %}
 {% endblock %}
