@@ -4,11 +4,11 @@
         <div class="d-flex gap-3">
 
             <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
-                class="rounded-circle bg-secondary flex-shrink-0">
+                 class="rounded-circle bg-secondary flex-shrink-0">
 
             <div class="flex-grow-1">
                 <a href="{% url 'question' question_id=question.id %}" class="h5 text-decoration-none d-block mb-2"
-                    title="{{ question.title }}">
+                   title="{{ question.title }}">
                     {{ question.title }}
                 </a>
                 <p class="text-muted mb-2">
@@ -17,16 +17,35 @@
 
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     {% for qt in question.questiontag_set.all %}
-                    <a href="{% url 'tag' tag_name=qt.tag.title %}"
-                        class="badge text-bg-secondary text-decoration-none">{{ qt.tag.title }}</a>
+                        <a href="{% url 'tag' tag_name=qt.tag.title %}"
+                           class="badge text-bg-secondary text-decoration-none">{{ qt.tag.title }}</a>
                     {% endfor %}
                 </div>
             </div>
 
             <div class="text-center">
-                <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲</button>
-                <div class="fw-bold">{{ question.rating }}</div>
-                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼</button>
+                {% if user.is_authenticated %}
+                    <button type="button" class="btn btn-sm btn-outline-success"
+                            data-like-url="{% url 'question_like' question.id %}" data-like-id="{{ question.id }}"
+                            data-like-type="like"
+                            aria-label="Upvote">▲
+                    </button>
+                    <div class="fw-bold"><span data-like-counter="{{ question.id }}">{{ question.rating }}</span></div>
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            data-like-url="{% url 'question_dislike' question.id %}" data-like-id="{{ question.id }}"
+                            data-like-type="dislike"
+                            aria-label="Downvote">▼
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-sm btn-outline-success"
+                            aria-label="Upvote" disabled
+                            title="Войдите, чтобы оценить вопрос">▲
+                    </button>
+                    <div class="fw-bold"><span data-like-counter="{{ question.id }}">{{ question.rating }}</span></div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote" disabled
+                            title="Войдите, чтобы оценить вопрос">▼
+                    </button>
+                {% endif %}
             </div>
         </div>
     </div>

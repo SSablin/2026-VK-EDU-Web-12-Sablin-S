@@ -26,20 +26,24 @@
                                 <div class="d-flex align-items-center gap-1">
                                     {% if user.is_authenticated %}
                                         <button type="button" class="btn btn-sm btn-outline-success"
-                                                aria-label="Upvote">▲
+                                                data-like-url="{% url 'answer_like' item.id %}"
+                                                data-like-id="{{ item.id }}"
+                                                data-like-type="like" aria-label="Upvote">▲
+                                        </button>
+                                        <div class="fw-bold"><span
+                                                data-like-counter="{{ item.id }}">{{ item.rating }}</span></div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-like-url="{% url 'answer_dislike' item.id %}"
+                                                data-like-id="{{ item.id }}"
+                                                data-like-type="dislike" aria-label="Downvote">▼
                                         </button>
                                     {% else %}
                                         <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote"
                                                 disabled
                                                 title="Войдите, чтобы оценить ответ">▲
                                         </button>
-                                    {% endif %}
-                                    <span class="fw-bold">{{ item.rating }}</span>
-                                    {% if user.is_authenticated %}
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                                aria-label="Downvote">▼
-                                        </button>
-                                    {% else %}
+                                        <div class="fw-bold"><span
+                                                data-like-counter="{{ item.id }}">{{ item.rating }}</span></div>
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                                 aria-label="Downvote" disabled
                                                 title="Войдите, чтобы оценить ответ">▼
@@ -49,7 +53,11 @@
 
                                 {% if item.is_correct %}
                                     {% if user.is_authenticated %}
-                                        <button type="button" class="btn btn-sm btn-success">Correct answer</button>
+                                        <button type="button" class="btn btn-sm btn-success"
+                                                data-correct-url="{% url 'answer_correct' item.id %}"
+                                                data-correct-id="{{ item.id }}"
+                                                data-correct-type="incorrect" aria-label="Correct answer">Correct answer
+                                        </button>
                                     {% else %}
                                         <button type="button" class="btn btn-sm btn-success" disabled
                                                 title="Войдите, чтобы выбрать правильный ответ">Correct answer
@@ -57,7 +65,10 @@
                                     {% endif %}
                                 {% else %}
                                     {% if user.is_authenticated %}
-                                        <button type="button" class="btn btn-sm btn-outline-success">Correct answer
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                                data-correct-url="{% url 'answer_correct' item.id %}"
+                                                data-correct-id="{{ item.id }}" data-correct-type="correct"
+                                                aria-label="Correct answer">Correct answer
                                         </button>
                                     {% else %}
                                         <button type="button" class="btn btn-sm btn-outline-success" disabled
