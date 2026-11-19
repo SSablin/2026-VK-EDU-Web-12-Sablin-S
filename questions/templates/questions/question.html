@@ -12,8 +12,13 @@
 <article id="answer-{{ item.id }}" class="card mb-3{% if item.is_correct %} border-success{% endif %}">
     <div class="card-body">
         <div class="d-flex gap-3">
+            {% if item.user.profile.avatar %}
+            <img src="{{ item.user.profile.avatar.url }}" alt="Avatar" width="48" height="48"
+                class="rounded-circle bg-secondary flex-shrink-0">
+            {% else %}
             <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
                 class="rounded-circle bg-secondary flex-shrink-0">
+            {% endif %}
             <div class="flex-grow-1">
                 <p class="mb-2">
                     {{ item.text }}
@@ -46,7 +51,7 @@
                     </div>
 
                     {% if item.is_correct %}
-                    {% if user.is_authenticated %}
+                    {% if user.is_authenticated and user.id == question.user.id %}
                     <button type="button" class="btn btn-sm btn-success"
                         data-correct-url="{% url 'answer_correct' item.id %}" data-correct-id="{{ item.id }}"
                         data-correct-question="{{ question.id }}" data-correct-type="incorrect"
@@ -54,11 +59,11 @@
                     </button>
                     {% else %}
                     <button type="button" class="btn btn-sm btn-success" disabled
-                        title="Войдите, чтобы выбрать правильный ответ">Correct answer
+                        title="Только автор вопроса может выбрать правильный ответ">Correct answer
                     </button>
                     {% endif %}
                     {% else %}
-                    {% if user.is_authenticated %}
+                    {% if user.is_authenticated and user.id == question.user.id %}
                     <button type="button" class="btn btn-sm btn-outline-success"
                         data-correct-url="{% url 'answer_correct' item.id %}" data-correct-id="{{ item.id }}"
                         data-correct-question="{{ question.id }}" data-correct-type="correct"
@@ -66,7 +71,7 @@
                     </button>
                     {% else %}
                     <button type="button" class="btn btn-sm btn-outline-success" disabled
-                        title="Войдите, чтобы выбрать правильный ответ">Correct answer
+                        title="Только автор вопроса может выбрать правильный ответ">Correct answer
                     </button>
                     {% endif %}
                     {% endif %}

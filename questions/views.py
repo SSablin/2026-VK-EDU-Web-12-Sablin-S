@@ -61,7 +61,6 @@ def question(request, question_id):
     })
 
 
-@login_required(login_url='/login/')
 def question_like(request, question_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST method required.'}, status=405)
@@ -89,7 +88,6 @@ def question_like(request, question_id):
     return JsonResponse({'rating': rating, 'is_like': current_like})
 
 
-@login_required(login_url='/login/')
 def question_dislike(request, question_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST method required.'}, status=405)

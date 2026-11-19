@@ -152,8 +152,15 @@ class ProfileForm(forms.ModelForm):
 
     def clean_avatar(self):
         avatar = self.cleaned_data.get('avatar')
-        if avatar and avatar.size > 2 * 1024 * 1024:  # 2MB limit
-            raise forms.ValidationError("Avatar file size must be under 2MB.")
+        if avatar:
+            allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif'}
+            extension = '.' + avatar.name.rsplit('.', 1)[-1].lower()
+            if extension not in allowed_extensions:
+                raise forms.ValidationError(
+                    "Avatar must be a JPG, JPEG, PNG, or GIF image."
+                )
+            if avatar.size > 2 * 1024 * 1024:
+                raise forms.ValidationError("Avatar file size must be under 2MB.")
         return avatar
 
     def save(self, commit=True):
