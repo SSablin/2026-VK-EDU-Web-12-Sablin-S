@@ -29,7 +29,7 @@ for (const item of likeButtons) {
                 'Content-Type': 'application/json',
             },
             mode: 'same-origin',
-            body: JSON.stringify({type: item.dataset.likeType}),
+            body: JSON.stringify({ type: item.dataset.likeType }),
         })
             .then((response) => response.json().then((data) => ({
                 ok: response.ok,
