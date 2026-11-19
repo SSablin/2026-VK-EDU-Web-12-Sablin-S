@@ -5,7 +5,8 @@ from django.contrib import auth
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from core.forms import LoginForm, RegisterForm
+from core.forms import LoginForm, RegisterForm, ProfileForm
+from core.models import Profile
 
 
 def login_view(request):
@@ -20,9 +21,9 @@ def login_view(request):
             if user is not None:
                 auth.login(request, user)
                 if next_url and url_has_allowed_host_and_scheme(
-                    next_url,
-                    allowed_hosts={request.get_host()},
-                    require_https=request.is_secure(),
+                        next_url,
+                        allowed_hosts={request.get_host()},
+                        require_https=request.is_secure(),
                 ):
                     return HttpResponseRedirect(next_url)
                 return HttpResponseRedirect(reverse('index'))
@@ -51,16 +52,25 @@ def signup_view(request):
 
 @login_required(login_url='login')
 def profile_view(request):
-    return render(request, 'core/profile.html', {"logined": True})
+    profile = Profile.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('profile'))
+    else:
+        form = ProfileForm(instance=profile)
+    return render(request, 'core/profile.html', {"form": form, "profile": profile})
 
 
+@login_required(login_url='login')
 def logout_view(request):
     auth.logout(request)
     referer = request.META.get('HTTP_REFERER')
     if referer and url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts={request.get_host()},
-        require_https=request.is_secure(),
+            referer,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
     ):
         return HttpResponseRedirect(referer)
     return HttpResponseRedirect(reverse('index'))

@@ -94,3 +94,34 @@ class RegisterForm(forms.ModelForm):
         if not email:
             raise forms.ValidationError("This field is required.")
         return email
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['nickname', 'avatar']
+        labels = {
+            'nickname': 'Nickname',
+            'avatar': 'Avatar',
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+    def clean_nickname(self):
+        nickname = self.cleaned_data.get('nickname')
+        if not nickname:
+            raise forms.ValidationError("This field is required.")
+        return nickname
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if avatar and avatar.size > 2 * 1024 * 1024:  # 2MB limit
+            raise forms.ValidationError("Avatar file size must be under 2MB.")
+        return avatar
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if commit:
+            profile.save()
+        return profile

@@ -121,3 +121,4 @@ class AnswerLike(DefaultModel):
         ]
         verbose_name = "Лайк ответа"
         verbose_name_plural = "Лайки ответов"
+
