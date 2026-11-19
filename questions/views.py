@@ -82,7 +82,11 @@ def question_like(request, question_id):
 
     rating = QuestionLike.objects.filter(question=question_objects, is_like=True).count()
     rating -= QuestionLike.objects.filter(question=question_objects, is_like=False).count()
-    return JsonResponse({'rating': rating})
+    current_like = QuestionLike.objects.filter(
+        question=question_objects,
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
 
 
 @login_required(login_url='/login/')
@@ -106,7 +110,11 @@ def question_dislike(request, question_id):
 
     rating = QuestionLike.objects.filter(question=question_objects, is_like=True).count()
     rating -= QuestionLike.objects.filter(question=question_objects, is_like=False).count()
-    return JsonResponse({'rating': rating})
+    current_like = QuestionLike.objects.filter(
+        question=question_objects,
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
 
 
 def answer_like(request, answer_id):
@@ -137,7 +145,10 @@ def answer_like(request, answer_id):
 
     rating = answer.answerlike_set.filter(is_like=True).count()
     rating -= answer.answerlike_set.filter(is_like=False).count()
-    return JsonResponse({'rating': rating})
+    current_like = answer.answerlike_set.filter(
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
 
 
 def answer_dislike(request, answer_id):
@@ -167,7 +178,10 @@ def answer_dislike(request, answer_id):
 
     rating = answer.answerlike_set.filter(is_like=True).count()
     rating -= answer.answerlike_set.filter(is_like=False).count()
-    return JsonResponse({'rating': rating})
+    current_like = answer.answerlike_set.filter(
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
 
 def answer_correct(request, answer_id):
     if request.method != 'POST':
