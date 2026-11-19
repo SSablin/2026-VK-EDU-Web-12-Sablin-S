@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block title %}AskMe — profile{% endblock %}
+{% block content %}
+<div class="d-flex gap-3">
+    <h1>Settings</h1>
+</div>
+
+<form action="{% url 'profile' %}" method="post" novalidate enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="text-nowrap form-label-col">Avatar</span>
+        {% if profile.avatar %}
+        <img src="{{ profile.avatar.url }}" alt="Avatar" width="80" height="80" class="rounded-circle bg-secondary">
+        {% else %}
+        <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="80" height="80"
+            class="rounded-circle bg-secondary">
+        {% endif %}
+    </div>
+
+    {% for field in form %}
+    <div class="d-flex gap-3 mb-3">
+        <label for="{{ field.id_for_label }}" class="text-nowrap form-label-col">
+            {{ field.label }}
+        </label>
+
+        <div class="flex-grow-1">
+            {% bootstrap_field field show_label=False placeholder="" %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex gap-3">
+        <span class="form-label-col"></span>
+        {% bootstrap_button button_type="submit" content="Save" %}
+    </div>
+</form>
+{% endblock %}

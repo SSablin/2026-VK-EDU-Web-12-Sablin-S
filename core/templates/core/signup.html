@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}AskMe — register{% endblock %}
+{% block content %}
+    <div class="d-flex gap-3">
+        <h1>Register</h1>
+    </div>
+
+    <form action="{% url 'signup' %}" method="post" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="d-flex align-items-start gap-3 mb-3">
+                <label for="{{ field.id_for_label }}" class="text-nowrap form-label-col">
+                    {{ field.label }}
+                </label>
+
+                <div class="flex-grow-1">
+                    {% bootstrap_field field show_label=False placeholder="" %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="d-flex gap-3">
+            <span class="form-label-col"></span>
+            <button type="submit" class="btn btn-primary">Register!</button>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% load static %}
+<article class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex gap-3">
+
+            {% if question.user.profile.avatar %}
+            <img src="{{ question.user.profile.avatar.url }}" alt="Avatar" width="48" height="48"
+                class="rounded-circle bg-secondary flex-shrink-0">
+            {% else %}
+            <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
+                class="rounded-circle bg-secondary flex-shrink-0">
+            {% endif %}
+
+            <div class="flex-grow-1">
+                <h1 class="h4 mb-3">{{ question.title }}</h1>
+                <p class="mb-3">{{ question.text }}</p>
+                <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                    {% for qt in question.questiontag_set.all %}
+                    <a href="{% url 'tag' tag_name=qt.tag.title %}"
+                        class="badge text-bg-secondary text-decoration-none">{{ qt.tag.title }}</a>
+                    {% endfor %}
+                    <span class="text-muted small">{{ answers_count }} answers</span>
+                </div>
+            </div>
+
+            <div class="text-center">
+                {% if user.is_authenticated %}
+                <button type="button" class="btn btn-sm btn-outline-success"
+                    data-like-url="{% url 'question_like' question.id %}" data-like-id="{{ question.id }}"
+                    data-like-type="like" aria-label="Upvote">▲
+                </button>
+                <div class="fw-bold"><span data-like-counter="{{ question.id }}">{{ question.rating }}</span></div>
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                    data-like-url="{% url 'question_dislike' question.id %}" data-like-id="{{ question.id }}"
+                    data-like-type="dislike" aria-label="Downvote">▼
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote" disabled
+                    title="Войдите, чтобы оценить вопрос">▲
+                </button>
+                <div class="fw-bold"><span data-like-counter="{{ question.id }}">{{ question.rating }}</span></div>
+                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote" disabled
+                    title="Войдите, чтобы оценить вопрос">▼
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</article>
