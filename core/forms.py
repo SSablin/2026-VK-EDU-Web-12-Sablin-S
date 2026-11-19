@@ -87,12 +87,16 @@ class RegisterForm(forms.ModelForm):
         username = self.cleaned_data.get('username')
         if not username:
             raise forms.ValidationError("This field is required.")
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if not email:
             raise forms.ValidationError("This field is required.")
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
         return email
 
 class ProfileForm(forms.ModelForm):
@@ -120,18 +124,30 @@ class ProfileForm(forms.ModelForm):
         login = self.cleaned_data.get('login')
         if not login:
             raise forms.ValidationError("This field is required.")
+        if User.objects.filter(username=login).exclude(
+                pk=self.instance.user_id
+        ).exists():
+            raise forms.ValidationError("This login is already taken.")
         return login
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if not email:
             raise forms.ValidationError("This field is required.")
+        if User.objects.filter(email=email).exclude(
+                pk=self.instance.user_id
+        ).exists():
+            raise forms.ValidationError("This email is already in use.")
         return email
 
     def clean_nickname(self):
         nickname = self.cleaned_data.get('nickname')
         if not nickname:
             raise forms.ValidationError("This field is required.")
+        if Profile.objects.filter(nickname=nickname).exclude(
+                pk=self.instance.pk
+        ).exists():
+            raise forms.ValidationError("This nickname is already taken.")
         return nickname
 
     def clean_avatar(self):
