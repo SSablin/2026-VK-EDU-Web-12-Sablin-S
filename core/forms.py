@@ -96,17 +96,37 @@ class RegisterForm(forms.ModelForm):
         return email
 
 class ProfileForm(forms.ModelForm):
+    login = forms.CharField(max_length=150, required=True)
+    email = forms.EmailField(required=True)
+
     class Meta:
         model = Profile
-        fields = ['nickname', 'avatar']
+        fields = ['login', 'email', 'nickname', 'avatar']
         labels = {
+            'login': 'Login',
+            'email': 'Email',
             'nickname': 'Nickname',
             'avatar': 'Avatar',
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance and self.instance.user_id:
+            self.fields['login'].initial = self.instance.user.username
+            self.fields['email'].initial = self.instance.user.email
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
+
+    def clean_login(self):
+        login = self.cleaned_data.get('login')
+        if not login:
+            raise forms.ValidationError("This field is required.")
+        return login
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email:
+            raise forms.ValidationError("This field is required.")
+        return email
 
     def clean_nickname(self):
         nickname = self.cleaned_data.get('nickname')
@@ -122,6 +142,9 @@ class ProfileForm(forms.ModelForm):
 
     def save(self, commit=True):
         profile = super().save(commit=False)
+        profile.user.username = self.cleaned_data['login']
+        profile.user.email = self.cleaned_data['email']
         if commit:
+            profile.user.save()
             profile.save()
         return profile
