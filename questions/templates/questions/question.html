@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ question.title }}{% endblock %}
+{% block content %}
+    {% with answer_count=answers|length %}
+        {% include 'questions/includes/question_card_details.html' with question=question answers_count=answer_count %}
+
+        <h2 class="h5 mb-3">Answers ({{ answer_count }})</h2>
+
+        {% for a in answers %}
+            <article class="card mb-3{% if a.is_correct %} border-success{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex gap-3">
+                        <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
+                             class="rounded-circle bg-secondary flex-shrink-0">
+                        <div class="flex-grow-1">
+                            <p class="mb-2">
+                                {{ a.text }}
+                            </p>
+                            <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                                <span class="text-muted small">{{ a.author }}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote">▲
+                                    </button>
+                                    <span class="fw-bold">{{ a.rating }}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote">▼
+                                    </button>
+                                </div>
+                                {% if a.is_correct %}
+                                    <button type="button" class="btn btn-sm btn-success">Correct answer</button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-success">Correct answer</button>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+
+        <form action="#" method="post" novalidate>
+            <label for="answer" class="form-label fw-bold">Your answer</label>
+            <textarea id="answer" name="answer" class="form-control mb-2" rows="5" required></textarea>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    {% endwith %}
+{% endblock %}
