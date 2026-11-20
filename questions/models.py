@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import Count, F, Q
 
-from questions.managers import QuestionManager
+from questions.managers import QuestionManager, TagManager
 
 User = get_user_model()
 
@@ -70,6 +70,7 @@ class Answer(DefaultModel):
 
 class Tag(DefaultModel):
     title = models.CharField(max_length=120, unique=True, verbose_name="Название тега")
+    objects = TagManager()
 
     class Meta:
         verbose_name = "Тег"

@@ -22,9 +22,13 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
+        if User.objects.exists():
+            raise CommandError(
+                "fill_db assumes an empty DB. Use a fresh DB or run `manage.py flush`."
+            )
         ratio = options["ratio"]
         if ratio <= 0:
-            raise CommandError("ratio должен быть положительным целым числом")
+            raise CommandError("ratio must be positive integer number")
 
         batch_size = 50_000
         pwd_hash = make_password("password123")

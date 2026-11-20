@@ -28,3 +28,11 @@ class QuestionManager(models.Manager.from_queryset(QuestionQuerySet)):
             .with_rating()
             .order_by("-created_at")
         )
+
+class TagManager(models.Manager.from_queryset(QuestionQuerySet)):
+    def popular(self):
+        return (
+            self.get_queryset()
+            .annotate(question_count=Count("questiontag"))
+            .order_by("-question_count")
+        )
