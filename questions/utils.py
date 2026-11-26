@@ -1,4 +1,14 @@
+from datetime import timedelta
+
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Count, F, Q
+from django.utils import timezone
+
+from questions.models import Answer, Question, Tag
+
+POPULAR_TAGS_CACHE_KEY = 'popular_tags_v1'
+BEST_MEMBERS_CACHE_KEY = 'best_members_v1'
 
 def paginate(objects_list, request, per_page=10):
     try:
@@ -23,3 +33,57 @@ def paginate(objects_list, request, per_page=10):
         page = paginator.page(paginator.num_pages)
 
     return page
+
+
+def calculate_popular_tags(limit=10):
+    since = timezone.now() - timedelta(days=90)
+    recent_questions = Q(questiontag__question__created_at__gte=since)
+    return list(
+        Tag.objects
+        .filter(questiontag__question__created_at__gte=since)
+        .annotate(question_count=Count('questiontag', filter=recent_questions))
+        .distinct()
+        .order_by('-question_count', '-id')[:limit]
+    )
+
+
+def calculate_best_members(limit=10):
+    since = timezone.now() - timedelta(days=7)
+    scores = {}
+
+    question_rows = (
+        Question.objects
+        .filter(created_at__gte=since, user_id__isnull=False)
+        .annotate(
+            likes=Count('questionlike', filter=Q(questionlike__is_like=True)),
+            dislikes=Count('questionlike', filter=Q(questionlike__is_like=False)),
+        )
+        .annotate(rating=F('likes') - F('dislikes'))
+        .values('user_id', 'rating')
+    )
+    for row in question_rows:
+        scores[row['user_id']] = scores.get(row['user_id'], 0) + row['rating']
+
+    answer_rows = (
+        Answer.objects
+        .filter(created_at__gte=since, user_id__isnull=False)
+        .annotate(
+            likes=Count('answerlike', filter=Q(answerlike__is_like=True)),
+            dislikes=Count('answerlike', filter=Q(answerlike__is_like=False)),
+        )
+        .annotate(rating=F('likes') - F('dislikes'))
+        .values('user_id', 'rating')
+    )
+    for row in answer_rows:
+        scores[row['user_id']] = scores.get(row['user_id'], 0) + row['rating']
+
+    ordered_ids = sorted(scores, key=lambda user_id: (-scores[user_id], -user_id))[:limit]
+    if not ordered_ids:
+        return []
+
+    User = get_user_model()
+    members_by_id = {
+        member.id: member
+        for member in User.objects.select_related('profile').filter(id__in=ordered_ids)
+    }
+    return [members_by_id[user_id] for user_id in ordered_ids if user_id in members_by_id]

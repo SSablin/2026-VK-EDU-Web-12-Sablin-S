@@ -108,7 +108,20 @@ services:
             - "**/__pycache__/"
         - action: rebuild
           path: ./requirements.txt
-
+  celery-beat:
+    build:
+      context: .
+    env_file:
+      - .env.docker
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CENTRIFUGO_URL: http://centrifugo:8000/api
+    command: celery -A application beat -l info --scheduler redbeat.RedBeatScheduler
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 volumes:
   media:
   postgres_data:

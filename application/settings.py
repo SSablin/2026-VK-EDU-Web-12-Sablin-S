@@ -172,3 +172,14 @@ CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BEAT_DB}"
 
 CELERY_BEAT_SCHEDULER = "redbeat.RedBeatScheduler"
 CELERY_REDBEAT_REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BEAT_DB}"
+
+CELERY_BEAT_SCHEDULE = {
+    "update-popular-tags": {
+        "task": "questions.tasks.update_popular_tags",
+        "schedule": 60 * 30,
+    },
+    "update-best-members": {
+        "task": "questions.tasks.update_best_members",
+        "schedule": 60 * 30,
+    },
+}
