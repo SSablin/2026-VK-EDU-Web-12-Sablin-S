@@ -12,4 +12,5 @@ urlpatterns = [
     path('answer/<int:answer_id>/like/', views.answer_like, name='answer_like'),
     path('answer/<int:answer_id>/dislike/', views.answer_dislike, name='answer_dislike'),
     path('answer/<int:answer_id>/correct/', views.answer_correct, name='answer_correct'),
+    path('answer/<int:answer_id>/fragment/', views.answer_fragment, name='answer_fragment'),
 ]

@@ -10,78 +10,7 @@
 
 <div id="answers-list">
     {% for item in page.object_list %}
-    <article id="answer-{{ item.id }}" class="card mb-3{% if item.is_correct %} border-success{% endif %}">
-        <div class="card-body">
-            <div class="d-flex gap-3">
-                {% if item.user.profile.avatar %}
-                <img src="{{ item.user.profile.avatar.url }}" alt="Avatar" width="48" height="48"
-                    class="rounded-circle bg-secondary flex-shrink-0">
-                {% else %}
-                <img src="{% static 'img/avatar.png' %}" alt="Avatar" width="48" height="48"
-                    class="rounded-circle bg-secondary flex-shrink-0">
-                {% endif %}
-                <div class="flex-grow-1">
-                    <p class="mb-2">
-                        {{ item.text }}
-                    </p>
-                    <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
-                        <span class="text-muted small">{{ item.user }}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-
-                        <div class="d-flex align-items-center gap-1">
-                            {% if user.is_authenticated %}
-                            <button type="button" class="btn btn-sm btn-outline-success"
-                                data-like-url="{% url 'answer_like' item.id %}" data-like-id="{{ item.id }}"
-                                data-like-type="like" aria-label="Upvote">▲
-                            </button>
-                            <div class="fw-bold"><span data-like-counter="{{ item.id }}">{{ item.rating }}</span></div>
-                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-like-url="{% url 'answer_dislike' item.id %}" data-like-id="{{ item.id }}"
-                                data-like-type="dislike" aria-label="Downvote">▼
-                            </button>
-                            {% else %}
-                            <button type="button" class="btn btn-sm btn-outline-success" aria-label="Upvote" disabled
-                                title="Войдите, чтобы оценить ответ">▲
-                            </button>
-                            <div class="fw-bold"><span data-like-counter="{{ item.id }}">{{ item.rating }}</span></div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Downvote" disabled
-                                title="Войдите, чтобы оценить ответ">▼
-                            </button>
-                            {% endif %}
-                        </div>
-
-                        {% if item.is_correct %}
-                        {% if user.is_authenticated and user.id == question.user.id %}
-                        <button type="button" class="btn btn-sm btn-success"
-                            data-correct-url="{% url 'answer_correct' item.id %}" data-correct-id="{{ item.id }}"
-                            data-correct-question="{{ question.id }}" data-correct-type="incorrect"
-                            aria-label="Correct answer">Correct answer
-                        </button>
-                        {% else %}
-                        <button type="button" class="btn btn-sm btn-success" disabled
-                            title="Только автор вопроса может выбрать правильный ответ">Correct answer
-                        </button>
-                        {% endif %}
-                        {% else %}
-                        {% if user.is_authenticated and user.id == question.user.id %}
-                        <button type="button" class="btn btn-sm btn-outline-success"
-                            data-correct-url="{% url 'answer_correct' item.id %}" data-correct-id="{{ item.id }}"
-                            data-correct-question="{{ question.id }}" data-correct-type="correct"
-                            aria-label="Correct answer">Correct answer
-                        </button>
-                        {% else %}
-                        <button type="button" class="btn btn-sm btn-outline-success" disabled
-                            title="Только автор вопроса может выбрать правильный ответ">Correct answer
-                        </button>
-                        {% endif %}
-                        {% endif %}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </article>
+    {% include 'questions/includes/answer_card.html' %}
     {% empty %}
     <p class="text-muted" id="empty-answer-message">Пока нет ни одного ответа к этому вопросу.</p>
     {% endfor %}

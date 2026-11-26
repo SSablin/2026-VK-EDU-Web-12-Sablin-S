@@ -41,6 +41,17 @@ def tag(request, tag_name):
 import jwt
 import time
 
+
+def answer_fragment(request, answer_id):
+    answer = get_object_or_404(
+        Answer.objects.select_related('user', 'question'),
+        pk=answer_id,
+    )
+    return render(request, 'questions/includes/answer_card.html', {
+        'item': answer,
+        'question': answer.question,
+    })
+
 def get_connection_token(user):
     subject = str(user.id) if user.is_authenticated else 'anonymous'
     return jwt.encode(
