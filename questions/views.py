@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.conf import settings
 from questions.forms import AnswerForm, QuestionForm
 from questions.models import Answer, Question, QuestionLike
+from questions.tasks import publish_new_answer
 from questions.utils import paginate
 
 
@@ -41,12 +42,13 @@ def tag(request, tag_name):
 import jwt
 import time
 
-
+@login_required(login_url='/login/')
 def answer_fragment(request, answer_id):
     answer = get_object_or_404(
         Answer.objects.select_related('user', 'question'),
         pk=answer_id,
     )
+
     return render(request, 'questions/includes/answer_card.html', {
         'item': answer,
         'question': answer.question,
@@ -71,8 +73,10 @@ def question(request, question_id):
         form = AnswerForm(request.POST)
         if form.is_valid():
             answer = form.save(request.user, question_objects)
-            from questions.tasks import publish_new_answer
-            publish_new_answer.delay(answer.id)
+            publish_new_answer.delay(
+                f"question:{question_objects.id}",
+                answer.as_json(),
+            )
             return HttpResponseRedirect(
                 f"{reverse('question', args=[question_objects.id])}#answer-{answer.id}"
             )

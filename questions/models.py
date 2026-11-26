@@ -67,6 +67,16 @@ class Answer(DefaultModel):
     def __str__(self):
         return f"Ответ от {self.user} #{self.id} на вопрос #{self.question_id}"
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "user": {"id": self.user_id, "username": self.user.username},
+            "text": self.text,
+            "answers_count": Answer.objects.filter(question_id=self.question_id).count(),
+        }
+
+
+
 
 class Tag(DefaultModel):
     title = models.CharField(max_length=120, unique=True, verbose_name="Название тега")

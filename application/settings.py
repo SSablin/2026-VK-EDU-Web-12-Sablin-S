@@ -143,7 +143,32 @@ CENTRIFUGO_API_KEY = os.environ.get(
     'CENTRIFUGO_API_KEY',
     '5VhTL2uPk_pD5Rx3SXFkuz76ZM-NZHU8jmz7QhnjenOkyyUTfkYBsnilsH4_oAefuk_dijykcOEUrDRNQySSlA'
 )
-CENTRIFUGO_URL = os.environ.get('CENTRIFUGO_URL', 'http://127.0.0.1:8005/api')
+CENTRIFUGO_API_URL = os.environ.get(
+    'CENTRIFUGO_API_URL',
+    os.environ.get('CENTRIFUGO_URL', 'http://127.0.0.1:8005/api'),
+)
+CENTRIFUGO_URL = CENTRIFUGO_API_URL
 CENTRIFUGO_WS_URL = os.environ.get('CENTRIFUGO_WS_URL', 'ws://127.0.0.1:8005/connection/websocket')
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+REDIS_CACHE_DB = os.environ.get('REDIS_CACHE_DB', '0')
+REDIS_BROKER_DB = os.environ.get('REDIS_BROKER_DB', '1')
+REDIS_BEAT_DB = os.environ.get('REDIS_BEAT_DB', '2')
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CACHE_DB}",
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "TIMEOUT": 60 * 10,
+    }
+}
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BROKER_DB}"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BEAT_DB}"
+
+CELERY_BEAT_SCHEDULER = "redbeat.RedBeatScheduler"
+CELERY_REDBEAT_REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BEAT_DB}"

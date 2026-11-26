@@ -19,7 +19,7 @@
                     <a href="{% url 'tag' tag_name=qt.tag.title %}"
                         class="badge text-bg-secondary text-decoration-none">{{ qt.tag.title }}</a>
                     {% endfor %}
-                    <span class="text-muted small">{{ answers_count }} answers</span>
+                    <span class="text-muted small" id="question-answer-count">{{ answers_count }} answers</span>
                 </div>
             </div>
 
