@@ -35,6 +35,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       CENTRIFUGO_URL: http://centrifugo:8000/api
       CENTRIFUGO_WS_URL: ws://127.0.0.1:8005/connection/websocket
+      EMAIL_HOST: maildev
+      EMAIL_PORT: 1025
     ports:
       - "8000:8000"
     volumes:
@@ -83,6 +85,11 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       CENTRIFUGO_URL: http://centrifugo:8000/api
+      EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+      EMAIL_HOST: maildev
+      EMAIL_PORT: 1025
+      EMAIL_USE_TLS: "False"
+      DEFAULT_FROM_EMAIL: AskMe <noreply@askme.local>
     command: celery -A application worker -l info
     depends_on:
       db:
@@ -116,12 +123,19 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       CENTRIFUGO_URL: http://centrifugo:8000/api
+      EMAIL_HOST: maildev
+      EMAIL_PORT: 1025
     command: celery -A application beat -l info --scheduler redbeat.RedBeatScheduler
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+  maildev:
+      image: maildev/maildev:latest
+      ports:
+        - "1080:1080"
+        - "1025:1025"
 volumes:
   media:
   postgres_data:

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import Count, F, Q
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 
 from questions.managers import QuestionManager, TagManager
 
@@ -23,10 +25,14 @@ class Question(DefaultModel):
     )
     title = models.CharField(max_length=120, verbose_name="Заголовок вопроса")
     text = models.TextField(max_length=4095, verbose_name="Текст вопроса")
+    search_vector = SearchVectorField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Вопрос"
         verbose_name_plural = "Вопросы"
+        indexes = [
+            GinIndex(fields=['search_vector']),
+        ]
     def __str__(self):
         return f"Вопрос от {self.user} #{self.id}: {self.title}"
 

@@ -2,6 +2,7 @@ from celery import shared_task
 from cent import Client
 from django.conf import settings
 from django.core.cache import cache
+from django.core.mail import send_mail
 
 from questions.utils import (
     BEST_MEMBERS_CACHE_KEY,
@@ -23,6 +24,27 @@ def publish_new_answer(self, channel, data):
     except Exception as exc:
         raise self.retry(exc=exc, countdown=5)
 
+@shared_task(bind=True, max_retries=3)
+def send_answer_notification_email(self, answer_id):
+    from questions.models import Answer
+
+    try:
+        answer = Answer.objects.select_related('question', 'question__user', 'user').get(pk=answer_id)
+        question_author = answer.question.user
+
+        send_mail(
+            subject=f"Новый ответ на вопрос: {answer.question.title}",
+            message=(
+                f"Пользователь {answer.user} оставил новый ответ:\n\n"
+                f"{answer.text}\n\n"
+                f"Вопрос: /question/{answer.question.id}/"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[question_author.email],
+            fail_silently=False,
+        )
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=5)
 
 @shared_task
 def update_popular_tags():

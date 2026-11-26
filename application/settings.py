@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'core',
     'questions',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -183,3 +184,14 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60 * 30,
     },
 }
+
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 1025))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in ("true", "1", "yes")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in ("true", "1", "yes")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "AskMe <noreply@askme.local>")
+

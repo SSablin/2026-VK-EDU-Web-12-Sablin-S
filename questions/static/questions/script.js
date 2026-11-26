@@ -110,3 +110,55 @@ document.addEventListener('click', (event) => {
             item.disabled = false;
         });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('header-search-input');
+    const suggestionsBox = document.getElementById('search-suggestions');
+    if (!searchInput || !suggestionsBox) return;
+
+    function debounce(fn, delay) {
+        let timerId;
+        return function (...args) {
+            clearTimeout(timerId);
+            timerId = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    const fetchSuggestions = async (query) => {
+        if (query.trim().length < 2) {
+            suggestionsBox.style.display = 'none';
+            suggestionsBox.innerHTML = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/search/suggestions/?q=${encodeURIComponent(query)}`);
+            if (!response.ok) return;
+            const data = await response.json();
+
+            if (data.suggestions.length === 0) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            suggestionsBox.innerHTML = data.suggestions.map(item => `
+                <a href="${item.url}" class="list-group-item list-group-item-action">
+                    ${item.title}
+                </a>
+            `).join('');
+            suggestionsBox.style.display = 'block';
+        } catch (err) {
+            console.error('Search error:', err);
+        }
+    };
+
+    searchInput.addEventListener('input', debounce((e) => {
+        fetchSuggestions(e.target.value);
+    }, 300));
+
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+});

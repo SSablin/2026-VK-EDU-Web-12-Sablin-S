@@ -5,10 +5,15 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.conf import settings
+from django.db.models import Q, Case, When, Value, IntegerField
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from questions.forms import AnswerForm, QuestionForm
 from questions.models import Answer, Question, QuestionLike
-from questions.tasks import publish_new_answer
+from questions.tasks import publish_new_answer, send_answer_notification_email
 from questions.utils import paginate
+import re
+
+
 
 
 def index(request):
@@ -42,6 +47,7 @@ def tag(request, tag_name):
 import jwt
 import time
 
+
 @login_required(login_url='/login/')
 def answer_fragment(request, answer_id):
     answer = get_object_or_404(
@@ -54,6 +60,7 @@ def answer_fragment(request, answer_id):
         'question': answer.question,
     })
 
+
 def get_connection_token(user):
     subject = str(user.id) if user.is_authenticated else 'anonymous'
     return jwt.encode(
@@ -61,6 +68,7 @@ def get_connection_token(user):
         settings.CENTRIFUGO_HMAC_SECRET,
         algorithm="HS256",
     )
+
 
 def question(request, question_id):
     question_objects = get_object_or_404(Question.objects.with_related().with_rating(), pk=question_id)
@@ -77,6 +85,7 @@ def question(request, question_id):
                 f"question:{question_objects.id}",
                 answer.as_json(),
             )
+            send_answer_notification_email.delay(answer.id)
             return HttpResponseRedirect(
                 f"{reverse('question', args=[question_objects.id])}#answer-{answer.id}"
             )
@@ -214,6 +223,7 @@ def answer_dislike(request, answer_id):
     ).values_list('is_like', flat=True).first()
     return JsonResponse({'rating': rating, 'is_like': current_like})
 
+
 def answer_correct(request, answer_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST method required.'}, status=405)
@@ -256,3 +266,57 @@ def ask(request):
         'form': form,
         'logined': request.user.is_authenticated,
     })
+
+def build_prefix_query(raw_query):
+    # Оставляем только буквы, цифры и пробелы, чтобы не сломать raw-синтаксис PostgreSQL
+    words = re.findall(r'\w+', raw_query)
+    if not words:
+        return None
+    # Превращаем "python djan" в "python:* & djan:*"
+    prefix_str = ' & '.join(f'{word}:*' for word in words)
+    return SearchQuery(prefix_str, config='russian', search_type='raw')
+
+def search(request):
+    query = request.GET.get('q', '').strip()
+    results = Question.objects.none()
+
+    if query:
+        search_query = build_prefix_query(query)
+        if search_query:
+            results = (
+                Question.objects.filter(search_vector=search_query)
+                .annotate(rank=SearchRank('search_vector', search_query))
+                .order_by('-rank', '-created_at')
+            )
+
+    page = paginate(results, request)
+    return render(request, 'questions/search.html', {
+        'page': page,
+        'query': query,
+    })
+
+def search_suggestions(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'suggestions': []})
+
+    search_query = build_prefix_query(query)
+    if not search_query:
+        return JsonResponse({'suggestions': []})
+
+    questions = (
+        Question.objects.filter(search_vector=search_query)
+        .annotate(rank=SearchRank('search_vector', search_query))
+        .order_by('-rank')[:5]
+    )
+
+    suggestions = [
+        {
+            'id': q.id,
+            'title': q.title,
+            # Если маршрут вопроса называется иначе, замените 'question' на ваше имя из urls.py
+            'url': reverse('question', args=[q.id]),
+        }
+        for q in questions
+    ]
+    return JsonResponse({'suggestions': suggestions})
