@@ -34,5 +34,15 @@ def update_popular_tags():
 @shared_task
 def update_best_members():
     members = calculate_best_members()
-    cache.set(BEST_MEMBERS_CACHE_KEY, [member.id for member in members], timeout=60 * 30)
+    cache.set(
+        BEST_MEMBERS_CACHE_KEY,
+        [
+            {
+                'member_id': member.id,
+                'best_question_id': member.best_question_id,
+            }
+            for member in members
+        ],
+        timeout=60 * 30,
+    )
     return len(members)

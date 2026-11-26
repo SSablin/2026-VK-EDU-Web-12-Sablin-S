@@ -86,4 +86,22 @@ def calculate_best_members(limit=10):
         member.id: member
         for member in User.objects.select_related('profile').filter(id__in=ordered_ids)
     }
-    return [members_by_id[user_id] for user_id in ordered_ids if user_id in members_by_id]
+    members = []
+    for user_id in ordered_ids:
+        member = members_by_id.get(user_id)
+        if not member:
+            continue
+        best_question = (
+            Question.objects
+            .filter(user_id=user_id)
+            .annotate(
+                likes=Count('questionlike', filter=Q(questionlike__is_like=True)),
+                dislikes=Count('questionlike', filter=Q(questionlike__is_like=False)),
+            )
+            .annotate(rating=F('likes') - F('dislikes'))
+            .order_by('-rating', '-created_at', '-id')
+            .first()
+        )
+        member.best_question_id = best_question.id if best_question else None
+        members.append(member)
+    return members

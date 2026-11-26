@@ -25,15 +25,27 @@ def popular_tags(request):
 
 
 def best_members(request):
-    member_ids = cache.get(BEST_MEMBERS_CACHE_KEY)
-    if member_ids is None:
+    member_entries = cache.get(BEST_MEMBERS_CACHE_KEY)
+    if member_entries is None:
         members = calculate_best_members()
-        member_ids = [member.id for member in members]
-        cache.set(BEST_MEMBERS_CACHE_KEY, member_ids, timeout=60 * 30)
+        member_entries = [
+            {
+                'member_id': member.id,
+                'best_question_id': member.best_question_id,
+            }
+            for member in members
+        ]
+        cache.set(BEST_MEMBERS_CACHE_KEY, member_entries, timeout=60 * 30)
     else:
+        member_ids = [entry['member_id'] for entry in member_entries]
         members_by_id = {
             member.id: member
             for member in User.objects.select_related('profile').filter(id__in=member_ids)
         }
-        members = [members_by_id[member_id] for member_id in member_ids if member_id in members_by_id]
+        members = []
+        for entry in member_entries:
+            member = members_by_id.get(entry['member_id'])
+            if member:
+                member.best_question_id = entry.get('best_question_id')
+                members.append(member)
     return {"best_members": members}
