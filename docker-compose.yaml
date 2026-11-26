@@ -1,4 +1,15 @@
 services:
+  redis:
+    image: redis:7-alpine
+
+  centrifugo:
+    image: centrifugo/centrifugo:v5
+    command: centrifugo -c /centrifugo/config.json
+    volumes:
+      - ./centrifugo/config.json:/centrifugo/config.json:ro
+    ports:
+      - "8005:8000"
+
   db:
     image: postgres:16
     env_file:
@@ -20,6 +31,10 @@ services:
       context: .
     env_file:
       - .env.docker
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CENTRIFUGO_URL: http://centrifugo:8000/api
+      CENTRIFUGO_WS_URL: ws://127.0.0.1:8005/connection/websocket
     ports:
       - "8000:8000"
     volumes:
@@ -28,7 +43,25 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
+  celery:
+    build:
+      context: .
+    env_file:
+      - .env.docker
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CENTRIFUGO_URL: http://centrifugo:8000/api
+    command: celery -A application worker -l info
+    volumes:
+      - .:/web
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 volumes:
   media:
   postgres_data:

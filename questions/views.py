@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.conf import settings
 from questions.forms import AnswerForm, QuestionForm
 from questions.models import Answer, Question, QuestionLike
 from questions.utils import paginate
@@ -37,6 +38,17 @@ def tag(request, tag_name):
                   })
 
 
+import jwt
+import time
+
+def get_connection_token(user):
+    subject = str(user.id) if user.is_authenticated else 'anonymous'
+    return jwt.encode(
+        {"sub": subject, "exp": int(time.time()) + 3600},
+        settings.CENTRIFUGO_HMAC_SECRET,
+        algorithm="HS256",
+    )
+
 def question(request, question_id):
     question_objects = get_object_or_404(Question.objects.with_related().with_rating(), pk=question_id)
     form = AnswerForm()
@@ -48,6 +60,8 @@ def question(request, question_id):
         form = AnswerForm(request.POST)
         if form.is_valid():
             answer = form.save(request.user, question_objects)
+            from questions.tasks import publish_new_answer
+            publish_new_answer.delay(answer.id)
             return HttpResponseRedirect(
                 f"{reverse('question', args=[question_objects.id])}#answer-{answer.id}"
             )
@@ -58,6 +72,10 @@ def question(request, question_id):
         'page': page,
         'form': form,
         'logined': request.user.is_authenticated,
+        'connection_token': get_connection_token(request.user),
+        'centrifugo_channel': f'question:{question_objects.id}',
+        'centrifugo_ws_url': settings.CENTRIFUGO_WS_URL,
+        'is_first_answer_page': page.number == 1,
     })
 
 

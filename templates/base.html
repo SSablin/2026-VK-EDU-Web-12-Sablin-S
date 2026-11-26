@@ -28,6 +28,62 @@
     {% include 'includes/footer.html' %}
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'questions/script.js' %}?v=2"></script>
+    <script src="https://unpkg.com/centrifuge@5.0.0/dist/centrifuge.js"></script>
+    {% if centrifugo_channel %}
+    <script>
+        const centrifuge = new Centrifuge('{{ centrifugo_ws_url|escapejs }}', {
+            token: '{{ connection_token|escapejs }}'
+        });
+
+        const answerSubscription = centrifuge.newSubscription('{{ centrifugo_channel|escapejs }}');
+
+        answerSubscription.on('publication', function (ctx) {
+            const answer = ctx.data;
+            if (document.getElementById(`answer-${answer.id}`)) {
+                return;
+            }
+
+            if (!{{ is_first_answer_page | yesno: 'true,false' }
+        }) {
+            alert('На вопрос появился новый ответ');
+            return;
+        }
+
+        const emptyMessage = document.getElementById('empty-answer-message');
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+
+        const article = document.createElement('article');
+        article.id = `answer-${answer.id}`;
+        article.className = 'card mb-3';
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+
+        const text = document.createElement('p');
+        text.className = 'mb-2';
+        text.textContent = answer.text;
+
+        const author = document.createElement('span');
+        author.className = 'text-muted small';
+        author.textContent = answer.user;
+
+        body.append(text, author);
+        article.append(body);
+
+        const answersList = document.getElementById('answers-list');
+        answersList.prepend(article);
+
+        const count = document.getElementById('answer-count');
+        const current = Number(count.textContent.match(/\d+/)?.[0] || 0);
+        count.textContent = `Answers (${current + 1})`;
+    });
+
+        answerSubscription.subscribe();
+        centrifuge.connect();
+    </script>
+    {% endif %}
 </body>
 
 </html>

@@ -106,3 +106,10 @@ python manage.py runserver
 ## Запуск
 
 Для запуска используются команды из разделов ДЗ2 и ДЗ3.
+
+# ДЗ5
+
+```bash
+docker run --rm  -v .:/centrifugo -p 8005:8005 centrifugo/centrifugo:v6 centrifugo -c config.json
+```
+

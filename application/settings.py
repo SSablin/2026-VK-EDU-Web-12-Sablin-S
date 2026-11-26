@@ -134,3 +134,16 @@ TIME_ZONE = 'Europe/Moscow'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
+CENTRIFUGO_HMAC_SECRET = os.environ.get(
+    'CENTRIFUGO_HMAC_SECRET',
+    '8TCipOcoeNKPk6xVtqJ_qz0rTevwBttbLAXWzK7hhd5c817DHo6s8yd61Tqvatuyo1tfIv6AbZaJbPnokML80g'
+)
+CENTRIFUGO_API_KEY = os.environ.get(
+    'CENTRIFUGO_API_KEY',
+    '5VhTL2uPk_pD5Rx3SXFkuz76ZM-NZHU8jmz7QhnjenOkyyUTfkYBsnilsH4_oAefuk_dijykcOEUrDRNQySSlA'
+)
+CENTRIFUGO_URL = os.environ.get('CENTRIFUGO_URL', 'http://127.0.0.1:8005/api')
+CENTRIFUGO_WS_URL = os.environ.get('CENTRIFUGO_WS_URL', 'ws://127.0.0.1:8005/connection/websocket')
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
