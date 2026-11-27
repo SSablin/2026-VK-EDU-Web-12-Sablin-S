@@ -1,43 +1,225 @@
-from django.shortcuts import render
-from .utils import _make_questions, paginate
+import json
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect, JsonResponse
+from django.urls import reverse
+from questions.forms import AnswerForm, QuestionForm
+from questions.models import Answer, Question, QuestionLike
+from questions.utils import paginate
 
 
 def index(request):
-    questions = _make_questions()
-    page = paginate(questions, request, per_page=10)
-    return render(request, 'questions/index.html', {'page': page, 'logined': False})
+    questions = Question.objects.new()
+    page = paginate(questions, request)
+    return render(request, 'questions/index.html', {
+        'page': page,
+        'logined': request.user.is_authenticated,
+    })
 
 
 def hot(request):
-    questions = sorted(_make_questions(), key=lambda q: q['rating'], reverse=True)
-    page = paginate(questions, request, per_page=10)
-    return render(request, 'questions/hot.html', {'page': page, 'logined': False})
+    questions = Question.objects.best()
+    page = paginate(questions, request)
+    return render(request, 'questions/hot.html', {
+        'page': page,
+        'logined': request.user.is_authenticated,
+    })
 
 
 def tag(request, tag_name):
-    questions = [q for q in _make_questions() if tag_name in q['tags']]
-    page = paginate(questions, request, per_page=10)
+    page = paginate(Question.objects.by_tag(tag_name), request)
     return render(request, 'questions/tag.html',
-                  {'page': page, 'tag_name': tag_name, 'logined': False})
+                  {
+                      'page': page,
+                      'tag_name': tag_name,
+                      'logined': request.user.is_authenticated,
+                  })
 
 
 def question(request, question_id):
-    question_data = {
-        'id': question_id,
-        'title': f'Question {question_id}',
-        'text': f'Text of question {question_id}',
-        'author': 'Ivan Ivanov',
-        'tags': ['html', 'learning'],
-        'rating': 12,
-    }
-    answers = [
-        {'id': i, 'text': f'answer {i}', 'author': 'Peter Petrov',
-         'rating': i * 2, 'is_correct': i == 2}
-        for i in range(1, 6)
-    ]
-    return render(request, 'questions/question.html',
-                  {'question': question_data, 'answers': answers, 'logined': True})
+    question_objects = get_object_or_404(Question.objects.with_related().with_rating(), pk=question_id)
+    form = AnswerForm()
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(
+                f"{reverse('login')}?next={request.path}"
+            )
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            answer = form.save(request.user, question_objects)
+            return HttpResponseRedirect(
+                f"{reverse('question', args=[question_objects.id])}#answer-{answer.id}"
+            )
+
+    page = paginate(Answer.objects.for_question(question_objects), request)
+    return render(request, 'questions/question.html', {
+        'question': question_objects,
+        'page': page,
+        'form': form,
+        'logined': request.user.is_authenticated,
+    })
 
 
+def question_like(request, question_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required.'}, status=401)
+    question_objects = get_object_or_404(Question.objects.with_related().with_rating(), pk=question_id)
+    question_like, created = QuestionLike.objects.get_or_create(
+        question=question_objects,
+        user=request.user,
+        defaults={'is_like': True},
+    )
+    if not created:
+        if question_like.is_like:
+            question_like.delete()
+        else:
+            question_like.is_like = True
+            question_like.save()
+
+    rating = QuestionLike.objects.filter(question=question_objects, is_like=True).count()
+    rating -= QuestionLike.objects.filter(question=question_objects, is_like=False).count()
+    current_like = QuestionLike.objects.filter(
+        question=question_objects,
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
+
+
+def question_dislike(request, question_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required.'}, status=401)
+    question_objects = get_object_or_404(Question.objects.with_related().with_rating(), pk=question_id)
+    question_like, created = QuestionLike.objects.get_or_create(
+        question=question_objects,
+        user=request.user,
+        defaults={'is_like': False},
+    )
+    if not created:
+        if question_like.is_like:
+            question_like.is_like = False
+            question_like.save()
+        else:
+            question_like.delete()
+
+    rating = QuestionLike.objects.filter(question=question_objects, is_like=True).count()
+    rating -= QuestionLike.objects.filter(question=question_objects, is_like=False).count()
+    current_like = QuestionLike.objects.filter(
+        question=question_objects,
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
+
+
+def answer_like(request, answer_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required.'}, status=401)
+    answer = get_object_or_404(Answer.objects, pk=answer_id)
+    try:
+        like_type = json.loads(request.body).get('type')
+    except (TypeError, json.JSONDecodeError):
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    if like_type not in ['like', 'dislike']:
+        return JsonResponse({'error': 'Invalid like type.'}, status=400)
+
+    is_like = like_type == 'like'
+    answer_like, created = answer.answerlike_set.get_or_create(
+        answer=answer,
+        user=request.user,
+        defaults={'is_like': is_like},
+    )
+    if not created:
+        if answer_like.is_like == is_like:
+            answer_like.delete()
+        else:
+            answer_like.is_like = is_like
+            answer_like.save()
+
+    rating = answer.answerlike_set.filter(is_like=True).count()
+    rating -= answer.answerlike_set.filter(is_like=False).count()
+    current_like = answer.answerlike_set.filter(
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
+
+
+def answer_dislike(request, answer_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required.'}, status=401)
+    answer = get_object_or_404(Answer.objects, pk=answer_id)
+    try:
+        like_type = json.loads(request.body).get('type')
+    except (TypeError, json.JSONDecodeError):
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    if like_type not in ['like', 'dislike']:
+        return JsonResponse({'error': 'Invalid like type.'}, status=400)
+
+    answer_like, created = answer.answerlike_set.get_or_create(
+        answer=answer,
+        user=request.user,
+        defaults={'is_like': False},
+    )
+    if not created:
+        if answer_like.is_like:
+            answer_like.is_like = False
+            answer_like.save()
+        else:
+            answer_like.delete()
+
+    rating = answer.answerlike_set.filter(is_like=True).count()
+    rating -= answer.answerlike_set.filter(is_like=False).count()
+    current_like = answer.answerlike_set.filter(
+        user=request.user,
+    ).values_list('is_like', flat=True).first()
+    return JsonResponse({'rating': rating, 'is_like': current_like})
+
+def answer_correct(request, answer_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required.'}, status=401)
+    answer = get_object_or_404(Answer.objects, pk=answer_id)
+    correct_type = request.POST.get('type')
+    if request.body:
+        try:
+            correct_type = json.loads(request.body).get('type', correct_type)
+        except (TypeError, json.JSONDecodeError):
+            pass
+    if correct_type not in ['correct', 'incorrect']:
+        return JsonResponse({'error': 'Invalid correct type.'}, status=400)
+
+    is_correct = correct_type == 'correct'
+    question = answer.question
+    if question.user != request.user:
+        return JsonResponse({'error': 'Only the author of the question can mark an answer as correct.'}, status=403)
+
+    if is_correct:
+        Answer.objects.filter(question=question).update(is_correct=False)
+
+    answer.is_correct = is_correct
+    answer.save()
+
+    return JsonResponse({'is_correct': answer.is_correct})
+
+
+@login_required(login_url='/login/')
 def ask(request):
-    return render(request, 'questions/ask.html', {'logined': True})
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(request.user)
+            return HttpResponseRedirect(reverse('question', args=[question.id]))
+    else:
+        form = QuestionForm()
+    return render(request, 'questions/ask.html', {
+        'form': form,
+        'logined': request.user.is_authenticated,
+    })

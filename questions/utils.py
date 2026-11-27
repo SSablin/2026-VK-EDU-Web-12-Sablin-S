@@ -1,12 +1,5 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-def _make_questions(n=30):
-    return [
-        {'id': i, 'title': f'title {i}', 'text': f'text {i}',
-         'tags': ['python', 'django'], 'rating': i % 7}
-        for i in range(1, n + 1)
-    ]
-
 def paginate(objects_list, request, per_page=10):
     try:
         per_page = int(request.GET.get('per_page', per_page))
