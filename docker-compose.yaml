@@ -25,7 +25,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
   web:
     build:
       context: .
@@ -40,42 +39,13 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - .:/web
       - media:/web/media
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
-    develop:
-      watch:
-        - action: sync
-          path: ./application
-          target: /web/application
-          ignore:
-            - "**/__pycache__/"
-        - action: sync
-          path: ./core
-          target: /web/core
-          ignore:
-            - "**/__pycache__/"
-        - action: sync
-          path: ./questions
-          target: /web/questions
-          ignore:
-            - "**/__pycache__/"
-        - action: sync
-          path: ./templates
-          target: /web/templates
-        - action: sync
-          path: ./static
-          target: /web/static
-        - action: sync
-          path: ./public
-          target: /web/public
-        - action: rebuild
-          path: ./requirements.txt
-        - action: rebuild
-          path: ./Dockerfile
 
   celery:
     build:
@@ -91,30 +61,14 @@ services:
       EMAIL_USE_TLS: "False"
       DEFAULT_FROM_EMAIL: AskMe <noreply@askme.local>
     command: celery -A application worker -l info
+    volumes:
+      - .:/web
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./application
-          target: /web/application
-          ignore:
-            - "**/__pycache__/"
-        - action: sync+restart
-          path: ./core
-          target: /web/core
-          ignore:
-            - "**/__pycache__/"
-        - action: sync+restart
-          path: ./questions
-          target: /web/questions
-          ignore:
-            - "**/__pycache__/"
-        - action: rebuild
-          path: ./requirements.txt
+
   celery-beat:
     build:
       context: .
@@ -126,6 +80,8 @@ services:
       EMAIL_HOST: maildev
       EMAIL_PORT: 1025
     command: celery -A application beat -l info --scheduler redbeat.RedBeatScheduler
+    volumes:
+      - .:/web
     depends_on:
       db:
         condition: service_healthy
