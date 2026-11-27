@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,20 +12,77 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-{% include 'includes/header.html' %}
+    {% include 'includes/header.html' %}
 
-<div class="container my-4 flex-grow-1">
-    <div class="row g-4">
-        <main class="col-12 col-lg-8">
-            {% block content %}{% endblock %}
-        </main>
-        <aside class="col-12 col-lg-4">
-            {% include 'includes/sidebar.html' %}
-        </aside>
+    <div class="container my-4 flex-grow-1">
+        <div class="row g-4">
+            <main class="col-12 col-lg-8">
+                {% block content %}{% endblock %}
+            </main>
+            <aside class="col-12 col-lg-4">
+                {% include 'includes/sidebar.html' %}
+            </aside>
+        </div>
     </div>
-</div>
 
-{% include 'includes/footer.html' %}
-<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    {% include 'includes/footer.html' %}
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'questions/script.js' %}?v=3"></script>
+    <script src="https://unpkg.com/centrifuge@5.0.0/dist/centrifuge.js"></script>
+    {% if centrifugo_channel %}
+    <script>
+        const centrifuge = new Centrifuge('{{ centrifugo_ws_url|escapejs }}', {
+            token: '{{ connection_token|escapejs }}'
+        });
+
+        const answerSubscription = centrifuge.newSubscription('{{ centrifugo_channel|escapejs }}');
+
+        answerSubscription.on('publication', function (ctx) {
+            const answer = ctx.data;
+            if (document.getElementById(`answer-${answer.id}`)) {
+                return;
+            }
+
+            const answerCount = answer.answers_count;
+            const answerCountHeading = document.getElementById('answer-count');
+            const questionAnswerCount = document.getElementById('question-answer-count');
+
+            if (answerCountHeading) {
+                answerCountHeading.textContent = `Answers (${answerCount})`;
+            }
+            if (questionAnswerCount) {
+                questionAnswerCount.textContent = `${answerCount} answers`;
+            }
+
+            if ('{{ page.number|default:1 }}' !== '1') {
+                alert('На вопрос появился новый ответ');
+                return;
+            }
+
+            fetch(`/answer/${answer.id}/fragment/`, { mode: 'same-origin' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Не удалось загрузить ответ');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    const emptyMessage = document.getElementById('empty-answer-message');
+                    if (emptyMessage) {
+                        emptyMessage.remove();
+                    }
+
+                    const answersList = document.getElementById('answers-list');
+                    answersList.insertAdjacentHTML('afterbegin', html);
+
+                })
+                .catch(error => alert(error.message));
+        });
+
+        answerSubscription.subscribe();
+        centrifuge.connect();
+    </script>
+    {% endif %}
 </body>
+
 </html>

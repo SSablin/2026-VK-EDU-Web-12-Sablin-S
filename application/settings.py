@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-load_dotenv()
+load_dotenv(BASE_DIR / '.env.local', override=False)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "change-me-to-a-long-random-string")
@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_bootstrap5',
     'core',
     'questions',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +69,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'questions.context_processors.popular_tags',
+                'questions.context_processors.best_members',
             ],
         },
     },
@@ -79,9 +83,13 @@ WSGI_APPLICATION = 'application.wsgi.application'
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ["DB_NAME"],
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASSWORD"],
+        "HOST": os.environ.get("DB_HOST", "localhost"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 
@@ -127,3 +135,63 @@ TIME_ZONE = 'Europe/Moscow'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
+CENTRIFUGO_HMAC_SECRET = os.environ.get(
+    'CENTRIFUGO_HMAC_SECRET',
+    '8TCipOcoeNKPk6xVtqJ_qz0rTevwBttbLAXWzK7hhd5c817DHo6s8yd61Tqvatuyo1tfIv6AbZaJbPnokML80g'
+)
+CENTRIFUGO_API_KEY = os.environ.get(
+    'CENTRIFUGO_API_KEY',
+    '5VhTL2uPk_pD5Rx3SXFkuz76ZM-NZHU8jmz7QhnjenOkyyUTfkYBsnilsH4_oAefuk_dijykcOEUrDRNQySSlA'
+)
+CENTRIFUGO_API_URL = os.environ.get(
+    'CENTRIFUGO_API_URL',
+    os.environ.get('CENTRIFUGO_URL', 'http://127.0.0.1:8005/api'),
+)
+CENTRIFUGO_URL = CENTRIFUGO_API_URL
+CENTRIFUGO_WS_URL = os.environ.get('CENTRIFUGO_WS_URL', 'ws://127.0.0.1:8005/connection/websocket')
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+REDIS_CACHE_DB = os.environ.get('REDIS_CACHE_DB', '0')
+REDIS_BROKER_DB = os.environ.get('REDIS_BROKER_DB', '1')
+REDIS_BEAT_DB = os.environ.get('REDIS_BEAT_DB', '2')
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CACHE_DB}",
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "TIMEOUT": 60 * 10,
+    }
+}
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BROKER_DB}"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BEAT_DB}"
+
+CELERY_BEAT_SCHEDULER = "redbeat.RedBeatScheduler"
+CELERY_REDBEAT_REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_BEAT_DB}"
+
+CELERY_BEAT_SCHEDULE = {
+    "update-popular-tags": {
+        "task": "questions.tasks.update_popular_tags",
+        "schedule": 60 * 30,
+    },
+    "update-best-members": {
+        "task": "questions.tasks.update_best_members",
+        "schedule": 60 * 30,
+    },
+}
+
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 1025))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in ("true", "1", "yes")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in ("true", "1", "yes")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "AskMe <noreply@askme.local>")
+

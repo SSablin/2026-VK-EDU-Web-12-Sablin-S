@@ -1,0 +1,17 @@
+{
+  "token_hmac_secret_key": "8TCipOcoeNKPk6xVtqJ_qz0rTevwBttbLAXWzK7hhd5c817DHo6s8yd61Tqvatuyo1tfIv6AbZaJbPnokML80g",
+  "allowed_origins": [
+    "http://127.0.0.1:8000"
+  ],
+  "api_key": "5VhTL2uPk_pD5Rx3SXFkuz76ZM-NZHU8jmz7QhnjenOkyyUTfkYBsnilsH4_oAefuk_dijykcOEUrDRNQySSlA",
+  "namespaces": [
+    {
+      "name": "question",
+      "allow_subscribe_for_client": true,
+      "allow_publish_for_client": false
+    }
+  ],
+  "admin": true,
+  "admin_password": "HMFQd_JBKJu65_RwcHgPKw",
+  "admin_secret": "ssKY0n1BtIFuzZG_b3e-pCBIxWGthIAGilYqFkFUPPgs38bjy4FHal6VlAuvWvYv2ZplhcOTtHyz7rDrmbDpQw"
+}

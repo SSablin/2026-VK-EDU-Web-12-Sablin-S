@@ -17,8 +17,8 @@ env/
 staticfiles/
 *.egg-info/
 
-.env
 .env.local
+.env.docker
 .env.*.local
 
 /media/

@@ -12,7 +12,8 @@ body {
 }
 
 .form-label-col {
-    min-width: 130px;
+    flex: 0 0 130px;
+    width: 130px;
 }
 
 .pagination {

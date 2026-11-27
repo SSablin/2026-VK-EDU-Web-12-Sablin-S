@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Search: {{ query }}{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-baseline gap-3 mb-3">
+    <h1 class="h3 mb-0">Search: {{ query }}</h1>
+    <a href="{% url 'index' %}" class="h3 mb-0 text-decoration-none link-primary">New questions</a>
+</div>
+
+{% for q in page.object_list %}
+    {% include 'questions/includes/question_card.html' with question=q %}
+{% empty %}
+    {% if query %}
+        <p>No questions found for "{{ query }}".</p>
+    {% else %}
+        <p>Enter a search query.</p>
+    {% endif %}
+{% endfor %}
+
+{% include 'questions/includes/pagination.html' with page=page %}
+{% endblock %}
