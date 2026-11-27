@@ -109,7 +109,10 @@ python manage.py runserver
 
 # ДЗ5
 
-```bash
-docker run --rm  -v .:/centrifugo -p 8005:8005 centrifugo/centrifugo:v6 centrifugo -c config.json
-```
+## Что внутри
+- websocket real-time обновлений (centrifugo),
+- фоновые и периодически выполняемые задачи (celery + celerybeat),
+- механизм кеширования (Redis),
+- email-уведомления о новых ответах на вопросы,
+- полнотекстового поиск вопросов (Elasticsearch).
 
